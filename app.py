@@ -19,9 +19,9 @@ app = Flask(__name__)
 
 # Enhanced Configuration
 class Config:
-    MYSQL_HOST = ''
-    MYSQL_USER = ''
-    MYSQL_PASSWORD = ''
+    MYSQL_HOST = 'mysql-3b04c61f-arleylevymec-1a1d.b.aivencloud.com'
+    MYSQL_USER = 'avnadmin'
+    MYSQL_PASSWORD = 'AVNS_kG4Wc5R82dPPUhIZxaL'
     MYSQL_DB = 'sql10752888'
     SECRET_KEY = 'a8Oi1923jaha1o1iJASJSAJ'
     SESSION_PERMANENT = True
