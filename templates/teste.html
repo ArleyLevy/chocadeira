@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/sJDXl0o.png">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100vh;
+        }
+
+        .menu-button1 {
+            position: fixed;
+            top: 10px;
+            left: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #fff;
+            z-index: 1100;
+            transition: transform 0.3s, color 0.3s;
+        }
+
+        .menu-button1:hover {
+            color: #ffd700;
+            transform: scale(1.2);
+        }
+
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 54px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            background: #333;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .logo1 {
+            text-align: center;
+        }
+
+        .logo1 a {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-left: 200px;
+            color: white;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -400px;
+            width: 300px;
+            height: 100%;
+            background: #333; /* Fundo escuro */
+            padding: 70px 20px;
+            transition: left 0.3s ease-in-out;
+            z-index: 800;
+            overflow-y: auto;
+            border: none; /* Garante que não haja borda */
+            outline: none; /* Remove qualquer delineamento */
+            box-shadow: none; /* Remove sombra */
+        }
+
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background: #555;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .sidebar button:hover {
+            background: #ffd700;
+            color: #4e54c8;
+            transform: translateX(5px);
+        }
+
+
+        .content {
+            margin-top: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .config-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            flex: 1;
+            max-width: 450px;
+        }
+
+        .config-section h2 {
+            margin-bottom: 10px;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .config-section form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .input-group label {
+            font-size: 14px;
+        }
+
+        .input-group input {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .theme-toggle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 20px auto;
+            cursor: pointer;
+        }
+
+        .theme-toggle label {
+            font-size: 16px;
+        }
+
+        .theme-toggle input[type="checkbox"] {
+            width: 40px;
+            height: 20px;
+            appearance: none;
+            background: #fff;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            outline: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .theme-toggle input[type="checkbox"]::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 14px;
+            height: 14px;
+            background: #4e54c8;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .theme-toggle input[type="checkbox"]:checked {
+            background: #ffd700;
+        }
+
+        .theme-toggle input[type="checkbox"]:checked::before {
+            transform: translateX(20px);
+            background: #333;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        footer span {
+            font-weight: bold;
+            color: #ffd700;
+        }
+        .content-button {
+            padding: 12px;
+            color: #fff;
+            background: #4CAF50;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .site-header .logo a img {
+            height: 40px;
+            margin-left: 50px;
+        }
+        body.dark-mode {
+            background: linear-gradient(135deg, #333, #555);
+            color: #f0f0f0;
+        }
+
+        body.dark-mode input {
+            background: #444;
+            color: #fff;
+        }
+
+        body.dark-mode .config-section {
+            background: rgba(50, 50, 50, 0.8);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+        }
+        .navigation ul {
+            display: flex;
+            gap: 10px;
+            margin-right: 20px;
+            z-index: 1000;
+        }
+        .flash-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1100;
+        }
+
+        .flash-message {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: bold;
+            background: #4CAF50;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.5s ease-in-out;
+        }
+        .flash-success {
+            background: #4CAF50 !important;
+        }
+
+        .flash-error {
+            background: #F44336 !important;
+        }
+        .flash-warning {
+            background: rgb(216, 216, 5) !important;
+        }
+        select {
+            width: 100%; /* Ajustar ao tamanho do contêiner */
+            padding: 10px; /* Espaçamento interno */
+            font-size: 16px; /* Tamanho da fonte */
+            border: none; /* Remover bordas padrão */
+            border-radius: 8px; /* Bordas arredondadas */
+            background-color: #444; /* Cor de fundo */
+            color: #fff; /* Cor do texto */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Adicionar sombra */
+            outline: none; /* Remover borda azul ao focar */
+            appearance: none; /* Remover seta padrão (estilo padrão do navegador) */
+            cursor: pointer; /* Cursor como ponteiro para interatividade */
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Transições suaves */
+        }
+
+        select:hover {
+            background-color: #444; /* Alterar fundo ao passar o mouse */
+            color: #53e200; /* Alterar a cor do texto ao passar o mouse */
+            transform: scale(1.02); /* Leve aumento ao passar o mouse */
+        }
+
+        select:focus {
+            box-shadow: 0 0 6px #ffd700; /* Realçar com brilho ao focar */
+        }
+
+    </style>
+</head>
+<body>
+    </div>
+    <header class="site-header">
+        <div class="logo">
+            <a href="/"><img src="https://i.imgur.com/c882vId.png" alt="Logo"></a>
+        </div>
+        <div class="logo1">
+            <a>Configurações</a>
+        </div>
+        <div class="navigation">
+            <ul>
+                <h4>Bem-vindo, {{ current_user.email }}</h4>
+            </ul>
+        </div>
+    </header>
+    <button class="menu-button1" onclick="toggleMenu()">☰</button>
+    <div class="sidebar" id="sidebar">
+        <button onclick="window.location.href='/dashboard'">Dashboard</button>
+        <button onclick="window.location.href='/logout'">Logout</button>
+    </div>
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    <div class="content">
+        <div class="config-section">
+            <h2>Troca de Senha</h2>
+            <form action="/config_senha" method="POST">
+                <div class="input-group">
+                    <label>Senha Atual</label>
+                    <input type="password" name= "nome" placeholder="Digite sua senha atual" required>
+                </div>
+                <div class="input-group">
+                    <label>Nova Senha</label>
+                    <input type="password" name= "nome1" placeholder="Digite a nova senha" required>
+                </div>
+                <div class="input-group">
+                    <label>Confirmar Nova Senha</label>
+                    <input type="password" name= "nome2" placeholder="Confirme a nova senha" required>
+                </div>
+                <button type="submit" class="content-button">Enviar</button>
+            </form>
+        </div>
+        <div class="config-section">
+            <h2>Troca de Broker MQTT</h2>
+            <form action="/config_broker" method="POST">
+                <div class="input-group">
+                    <label>Host</label>
+                    <input type="text" name= "broker" placeholder="Digite o url do broker" required>
+                </div>
+                <div class="input-group">
+                    <label>Porta</label>
+                    <input type="text" name= "port" placeholder="Digite a porta" required>
+                </div>
+                <div class="input-group">
+                    <label>Usuário</label>
+                    <input type= "text" name= "user" placeholder="Digite o usuário" required>
+                </div>
+                <div class="input-group">
+                    <label>Senha</label>
+                    <input type="password" name= "password" placeholder="Digite a senha" required>
+                </div>
+                <button type="submit" class="content-button">Enviar</button>
+            </form>
+        </div>
+        <div class="config-section">
+            <h2>Troca de E-mail</h2>
+            <form action="/config_email" method="POST">
+                <div class="input-group">
+                    <label>Novo E-mail</label>
+                    <input type="email" name="email"placeholder="Digite o novo e-mail" required>
+                </div>
+                <div class="input-group">
+                    <label>Confirmar E-mail</label>
+                    <input type="email" name="name__"placeholder="Confirme o novo e-mail" required>
+                </div>
+                <button type="submit" class="content-button">Enviar</button>
+            </form>
+        </div>
+        <div class="config-section">
+        <h2>Troca de pinos dos SLOT'S</h2>
+        <form id="dropdownForm" action="/pin_update" method="POST">
+            <label class="label1" for="led">Qual o SLOT?</label>
+            <input type="hidden" name="user_id" value="{{ current_user.id }}">
+            <select id="dropdown1" name="led" required>
+                <div class="input-group">
+                    <option value="nada" selected>Selecione um SLOT</option>
+                    <option value="led0">SLOT 1</option>
+                    <option value="led1">SLOT 2</option>
+                    <option value="led2">SLOT 3</option>
+                    <option value="led3">SLOT 4</option>
+                </div>
+            </select>
+            <label class="label1" for="dropdown2">Selecione o respectivo pino:</label>
+            <select id="dropdown2" name="pin" required>
+                <option value="nada" selected>Selecione seu pino de saída</option>
+                <option value="2">PIN 2 </option>
+                <option value="3">PIN 4 (cuidado)</option>
+                <option value="4">PIN 12</option>
+                <option value="5">PIN 13</option>
+                <option value="6">PIN 14</option>
+                <option value="7">PIN 15</option>
+                <option value="8">PIN 16</option>
+                <option value="9">PIN 17</option>
+                <option value="10">PIN 18</option>
+                <option value="11">PIN 19</option>
+                <option value="12">PIN 21</option>
+                <option value="13">PIN 22</option>
+                <option value="14">PIN 14</option>
+                <option value="15">PIN 15</option>
+                <option value="16">PIN 16</option>
+                <option value="17">PIN 17</option>
+                <option value="18">PIN 18</option>
+                <option value="19">PIN 19</option>
+                <option value="20">PIN 20</option>
+                <option value="21">PIN 21</option>
+                <option value="22">PIN 22</option>
+                <option value="23">PIN 23</option>
+                <option value="24">PIN 24</option>
+                <option value="25">PIN 25</option>
+                <option value="26">PIN 26</option>
+                <option value="27">PIN 27</option>
+                <option value="28">PIN 28</option>                
+            </select> 
+            <button class="content-button" type="submit">Enviar</button>
+        </form>
+        </div>
+    </div>
+
+    <div class="theme-toggle">
+        <label for="theme-switch">Modo Escuro</label>
+        <input type="checkbox" id="theme-switch">
+    </div>
+
+    <footer>
+        Powered by <span>Arley™</span>
+    </footer>
+    <script>
+        // Carregar o estado do modo escuro ao iniciar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            const themeSwitch = document.getElementById('theme-switch');
+            if (themeSwitch) {
+                themeSwitch.checked = isDarkMode; // Atualizar o toggle com o estado atual
+            }
+        });
+        // Salvar o estado do modo escuro ao alterar o toggle
+        const themeSwitch = document.getElementById('theme-switch');
+        themeSwitch.addEventListener('change', () => {
+            const isDarkMode = themeSwitch.checked;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            localStorage.setItem('darkMode', isDarkMode); // Salvar no localStorage
+        });
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(message => {
+                message.style.opacity = '0';
+                setTimeout(() => message.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

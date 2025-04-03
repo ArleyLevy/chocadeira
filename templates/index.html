@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/sJDXl0o.png">
+    <style>
+        /* Corpo da página */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+        }
+
+        /* Botão do menu */
+        .menu-button {
+            position: fixed;
+            top: 10px;
+            left: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #fff;
+            z-index: 1100;
+            transition: transform 0.3s, color 0.3s;
+        }
+
+        .menu-button:hover {
+            color: #ffd700;
+            transform: scale(1.2);
+        }
+
+        /* Cabeçalho */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 54px; /* Altura fixa */
+            display: flex;
+            align-items: center;
+            padding: -5px 20px; /* Apenas laterais */
+            background: #333;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .botao{
+            margin-top: 50px;
+        }
+
+        .site-header .logo a img {
+            height: 40px;
+            margin-left: 60px;
+        }
+
+        .site-header .logo1 a {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-left: 40px ;
+            color: white;
+        }
+
+        /* Navegação */
+        .logo1 {
+            flex: 1; /* Ocupa o espaço central */
+            text-align: center; /* Centraliza o texto no espaço */
+        }
+
+        .navigation, .navigation1 {
+            color: #333;
+            margin-right: 10px;
+            gap: 10px;
+        }
+
+        .navigation ul, .navigation1 ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            gap: 10px;
+        }
+        .navigation1 a {
+            color: white;
+            padding: 5px 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .navigation1 a:hover {
+            background-color: #ffd700;
+            color: #4e54c8;
+           
+        }
+        .navigation a {
+            color: white;
+            padding: 5px 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .navigation a:hover {
+            background-color: #ffd700;
+            color: #4e54c8;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .navigation ul {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 10px 20px;
+            }
+        }
+
+        @media (max-width : 403px){
+            .site-header .logo1 a {
+                display:none;
+            }
+        }
+
+
+        /* Barra lateral */
+        .sidebar {
+            position: fixed;
+            display: flex;
+            top: 0px;
+            left: -400px;
+            width: 300px;
+            height:100%;
+            background: #333;
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+            transition: left 0.4s ease;
+            overflow-y: auto;
+            z-index: 1000px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px; /* Reduz a largura da sidebar */
+            }
+        }
+
+        /* Para telas menores que 480px (celulares menores) */
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 150px; /* Reduz ainda mais a largura da sidebar */
+                padding: 10px; /* Ajusta o padding */
+            }
+        }
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background: #555;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .sidebar button:hover {
+            background: #ffd700;
+            color: #4e54c8;
+            transform: translateX(5px);
+        }
+
+        /* Rodapé */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .footer span {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        /* Mensagens Flash */
+        .flash-container {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            z-index: 1100;
+        }
+
+        .flash-message {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: bold;
+            background: #4CAF50;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.5s ease-in-out;
+        }
+        body.dark-mode {
+            background: linear-gradient(135deg, #333, #555);
+            color: #f0f0f0;
+        }
+
+        body.dark-mode input {
+            background: #444;
+            color: #fff;
+        }
+
+        body.dark-mode .config-section {
+            background: rgba(50, 50, 50, 0.8);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="logo">
+            <a href="/"><img src="https://i.imgur.com/c882vId.png" alt="Logo"></a>
+        </div>
+        <div class="logo1">
+            <a>Controle de LEDs</a>
+        </div>
+        <div class="navigation">
+            <ul>
+                <a button onclick="window.location.href='/dashboard'">Dashboard</a>
+            </ul>
+        </div>
+        <div class="navigation1">
+            <ul>
+                <a button onclick="window.location.href='/login'">Login</a>
+            </ul>
+        </div>
+    </header>
+    <button class="menu-button" onclick="toggleMenu()">☰</button>
+    <div class="sidebar" id="sidebar">
+        <div class="botao">
+            <button onclick="window.location.href='/tutorial'">Guia para o ESP32</button> 
+            <button onclick="window.open('https://www.invertexto.com/broker', '_blank')">MQTT para Testes</button>
+        </div>
+    </div>
+    <div class="meio">
+        <h2>Olá, seja bem-vindo!</h2>
+    </div>
+    <footer class="footer">
+        Powered by <span>Arley™</span>
+    </footer>
+    <script>
+        // Carregar o estado do modo escuro ao iniciar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            const themeSwitch = document.getElementById('theme-switch');
+            if (themeSwitch) {
+                themeSwitch.checked = isDarkMode; // Atualizar o toggle com o estado atual
+            }
+        });
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+        function downloadFile(url) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'esp_online.ino'; // Pode adicionar um nome padrão aqui, se necessário
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
+
+
+

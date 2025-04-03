@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/sJDXl0o.png">
+    <style>
+        /* Estilo Geral */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header.site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 54px; /* Altura fixa */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: -5px 30px; /* Apenas laterais */
+            background: #333;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        header .logo img {
+            height: 40px;
+            margin-left: 60px;
+            margin-top: 3px;
+        }
+
+        header .logo1 a {
+            font-size: 1.5rem;
+            margin-left: -20px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        nav.navigation ul {
+            list-style: none;
+            display: flex;
+            gap: 15px;
+            margin-right: 5px;
+            margin-top: 17px;
+            padding: 0;
+        }
+
+        nav.navigation ul li {
+            display: inline;
+        }
+
+        nav.navigation ul li a {
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        nav.navigation ul li a:hover {
+            background-color: #ffd700;
+            color: #4e54c8;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-top: 40px; /* Espaço para o header fixo */
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1300px;
+            max-height: 700px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .scrollable-content {
+            height: 800px; /* Altura da área visível */
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .scrollable-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollable-content::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+
+        .scrollable-content::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .toc {
+            margin-bottom: 30px;
+            padding: 10px;
+            border-left: 4px solid #ffd700;
+            background: #fef3f2;
+            border-radius: 4px;
+        }
+
+        .toc h2 {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+            color: #4e54c8;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .toc ul li {
+            margin: 10px 0;
+        }
+
+        .toc ul li a {
+            color: #333;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.2s ease;
+        }
+
+        .toc ul li a:hover {
+            color: #ffd700;
+        }
+
+        section {
+            margin-bottom: 30px;
+        }
+
+        section h2 {
+            font-size: 1.5rem;
+            color: #4e54c8;
+            border-bottom: 2px solid #ffd700;
+            padding-bottom: 5px;
+        }
+
+        section p {
+            margin: 10px 0;
+        }
+
+        .footer {
+            margin-bottom: 7px;
+            margin-left: 37px;
+            text-align: center;
+            color: #fff;
+        }
+
+        footer span {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        /* Sidebar */
+        .menu-button {
+            position: fixed;
+            top: 10px;
+            left: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #fff;
+            z-index: 1100;
+            transition: transform 0.3s, color 0.3s;
+        }
+
+        .menu-button:hover {
+            color: #ffd700;
+            transform: scale(1.2);
+        }
+        .buttom_esp {
+            width: 25%;
+            padding: 10px;
+            margin-bottom: 0px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background: #555;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .buttom_esp:hover {
+            background: green; /* Cor de fundo ao passar o mouse */
+            color: white; /* Cor do texto ao passar o mouse */
+            transform: translateY(-2px); /* Leve efeito de elevação */
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -400px;
+            width: 300px;
+            height: 100%;
+            background: #333;
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+            transition: left 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background: #555;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .sidebar button:hover {
+            background: #ffd700;
+            color: #4e54c8;
+            transform: translateX(5px);
+        }
+        .botao{
+            margin-top: 50px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px; /* Reduz a largura da sidebar */
+            }
+        }
+
+        /* Para telas menores que 480px (celulares menores) */
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 150px; /* Reduz ainda mais a largura da sidebar */
+                padding: 10px; /* Ajusta o padding */
+            }
+        }
+        @media (max-width : 403px){
+            .site-header .logo1 a {
+                display:none;
+            }
+        }
+        body.dark-mode {
+            background: linear-gradient(135deg, #333, #555);
+            color: #f0f0f0;
+        }
+
+        body.dark-mode input {
+            background: #444;
+            color: #fff;
+        }
+
+        body.dark-mode .config-section {
+            background: rgba(50, 50, 50, 0.8);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+        }
+        body.dark-mode p {
+            color:  black; /* Cor clara para contraste no fundo escuro */
+        }
+        body.dark-mode pre {
+            color:  black; /* Cor clara para contraste no fundo escuro */
+        }
+    
+    </style>
+</head>
+<body>
+
+<header class="site-header">
+    <div class="logo">
+        <a href="/"><img src="https://i.imgur.com/c882vId.png" alt="Logo"></a>
+    </div>
+    <div class="logo1">
+        <a>Guia para o ESP32</a>
+    </div>
+    <nav class="navigation">
+        <ul>
+            <li><a href="/login">Login</a></li>
+        </ul>
+    </nav>
+</header>
+
+<button class="menu-button" onclick="toggleSidebar()">☰</button>
+
+<div class="sidebar" id="sidebar">
+    <div class="botao">
+        <button onclick="window.location.href='/'">Página inicial</button> 
+        <button onclick="window.open('https://www.invertexto.com/broker', '_blank')">MQTT para Testes</button>
+    </div>
+</div>
+
+<main class="main-content">
+    <div class="container">
+        <div class="scrollable-content">
+            <div class="toc">
+                <h2>Índice</h2>
+                <ul>
+                    <li><a href="#topico1">Tópico 1: Introdução</a></li>
+                    <li><a href="#topico2">Tópico 2: Downloads</a></li>
+                    <li><a href="#topico3">Tópico 3: Implementação</a></li>
+                    <li><a href="#topico4">Tópico 4: Conclusão</a></li>
+                </ul>
+            </div>
+
+            <section id="topico1">
+                <h2>Tópico 1: Introdução</h2>
+                <p>Bem-vindo ao guia rápido de como configurar seu servidor MQTT, no esp32!
+                    <br>Vamos usar a Arduino IDE para fazer o código para o esp32, e configurá-lo.
+                    <br>No menu do site, no canto superior, "☰", está diponível um broker MQTT pra teste, caso você não tenha um!
+                    <br><b>⚠️ Se você não configurou seu esp32 na Arduio IDE, <a href="https://embarcados.com.br/como-programar-o-esp32-na-arduino-ide/">clique aqui.</b></a>
+                </p>
+            </section>
+
+            <section id="topico2">
+                <h2>Tópico 2: Downloads</h2>
+                <p>Download do código para esp32:</p>
+                <button class="buttom_esp" onclick="downloadFile('{{ url_for("static", filename="arquivos/led_online_pronto.ino") }}')">📥 Código para o ESP32</button> 
+                <p>Dowload Arduino IDE:</p>
+                <button class="buttom_esp" onclick="window.open('https://downloads.arduino.cc/arduino-ide/arduino-ide_2.3.3_Windows_64bit.exe', '_blank')">📥 Arduino IDE <br>(Windows 64 bits)</button> 
+            </section>
+
+        </section>
+    
+        <section id="topico3">
+            <h2>Tópico 3: Implementação</h2>
+            <p>Agora é hora de colocar a mão na massa e configurarmos o código esp.
+            <br>Ao instalar a Arduino IDE e configurar, e baixar o arquivo do código esp32.
+            <br>Abra o arquivo do código. E configure seu WIFI:
+            <br>Procure essa parte do código:
+            </p>
+                <pre>
+                    <code>
+                    // Configurações da rede Wi-Fi
+                    const char* ssid = "O nome da sua rede";
+                    const char* password = "A senha da sua rede";
+                    </code>
+                </pre>
+            <p>
+                Digite o nome da sua rede e sua senha, no campo indicado.
+                <br>
+                <br>Em seguida procure essa parte, para configurarmos o MQTT:
+            </p>
+            <pre>
+                <code>
+                    // Configurações do broker MQTT
+                    const char* mqtt_server = "Broker MQTT";
+                    const char* mqtt_username = "Username MQTT";
+                    const char* mqtt_password = "Password_MQTT";
+                    const int mqtt_port = PORT MQTT;
+                </code>
+            </pre>
+            <P> Proximo passo é definir seu id de Usuário. Faça seu registro no site <a href="/register">aqui.</a>
+                <br>Depois de ter feito seu registro, e acessado a dashboard de leds, clique no nenu '☰', no canto superior esquerdo da tela.
+                <br>Lá terá o botão de Logout, o broker que você está usando e seu Id de Usuário. Pegue seu Id de usuário e coloque no local definido no código:
+            </P>
+            <pre>
+                <code>
+                    // Tópicos MQTT (ajustados dinamicamente com user_id)
+                    int user_id = SEU ID;  // Substitua por ID correspondente
+                </code>
+            </pre>
+            <p>
+                Como foi dito no tópico 1, no menu do canto superior esquerdo, está disponível um MQTT para teste.
+                <br> Preencha na parte do código o que se pede.<br><br><b>⚠️ Atenção, os valores de "mqtt_server", "mqtt_username", "mqtt_password"
+                <br> devem está dentro das aspas, somente o "mqtt port" e o "user_id" deve estar sem aspas.</b>
+                <br><br>Pronto! Seu código já está configurado, e já pode rodar no seu esp32.
+                <br>Depois do programa estar rodando no esp, faça login para ter acesso
+                <br> ao Dashboard das leds!
+            </p>
+        </section>
+            <section id="topico4">
+                <h2>Tópico 4: Conclusão</h2>
+                <p>Pronto! Depois de ter feito login, você já está usando o Dashboard de leds!</p>
+            </section>
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    Powered by <span>Arley™</span>
+</footer>
+
+    <script>
+        // Carregar o estado do modo escuro ao iniciar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            const themeSwitch = document.getElementById('theme-switch');
+            if (themeSwitch) {
+                themeSwitch.checked = isDarkMode; // Atualizar o toggle com o estado atual
+            }
+        });
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        function downloadFile(url) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'led_online_pronto.ino';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+
+</body>
+</html>

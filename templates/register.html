@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/sJDXl0o.png">
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+        }
+
+        .form-container {
+            width: 80%;
+            height: 80%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            padding-bottom: 10px; /* Adicionei mais espaço na parte inferior */
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            height: auto; /* Permitir que o tamanho do container se ajuste ao conteúdo */
+        }
+        .form-container h1 {
+            font-size: 24px; /* Diminuí o tamanho do título */
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            flex-wrap: wrap; /* Permite que os elementos quebrem linha */
+        }
+
+        @media (max-width: 445px) {
+            .mqtt {
+                display: inline-block;
+                overflow-wrap: break-word;
+                word-break: break-word;
+                white-space: normal;
+            }
+        }
+
+        .form-group label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: left;
+            flex: 1; /* Mantém a largura proporcional */
+            min-width: 0; /* Permite que o label diminua de tamanho */
+        }
+
+        .form-group input {
+            flex: 2;
+            padding: 10px; /* Reduzi o padding */
+            min-width: 0; /* Permite que o input também diminua */
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 14px; /* Diminuí o tamanho da fonte */
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        .form-footer {
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .form-group input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .form-button {
+            display: block;
+            width: 100%;
+            padding: 10px; /* Reduzi o padding */
+            font-size: 14px; /* Diminuí o tamanho da fonte */
+            color: #fff;
+            background: #4CAF50;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            margin-top: 25px; /* Adicionando margem superior */
+        }
+
+        .form-button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .form-button:active {
+            background: #3e8e41;
+            transform: translateY(1px);
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
+
+        footer span {
+            font-weight: bold;
+            color: #ffd700;
+        }
+        .flash-container {
+            position: fixed;
+            top: 20px; /* Ajustei a posição */
+            right: 20px;
+            z-index: 1100;
+        }
+
+        .flash-message {
+            padding: 10px; /* Reduzi o padding */
+            margin-bottom: 10px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px; /* Diminuí a fonte */
+            font-weight: bold;
+            background: #4CAF50;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .flash-success {
+            background: #4CAF50 !important;
+        }
+
+        .flash-error {
+            background: #F44336 !important;
+        }
+        .flash-warning {
+            background: yellow !important;
+        }
+        .eye-icon {
+            position: absolute;
+            top: 50%;
+            right: 15px; /* Ajuste a posição horizontal */
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 20px;
+            color: #fff;
+            user-select: none;
+        }      
+        #spinner-container {
+            display: none; /* Inicialmente oculto */
+            justify-content: center;
+            align-items: center;
+            position: fixed; /* Fixa no centro da tela */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Fundo semi-transparente */
+            z-index: 1000; /* Aparece acima de outros elementos */
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3); /* Cor clara para a borda */
+            border-top: 40px solid #fff; /* Cor mais forte para o efeito */
+            width: 40px; /* Largura do spinner */
+            height: 40px; /* Altura do spinner */
+            animation: spin 1s linear infinite; /* Animação contínua */
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        body.dark-mode {
+            background: linear-gradient(135deg, #333, #555);
+            color: #f0f0f0;
+        }
+
+        body.dark-mode input {
+            background: #444;
+            color: #fff;
+        }
+
+        body.dark-mode .config-section {
+            background: rgba(50, 50, 50, 0.8);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Cadastro</h1>
+        <div class="flash-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+        <form id="register-form" action="/register" method="POST">
+            <div class="form-group">
+                <label for="email">E-mail:</label>
+                <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
+            </div>
+            <div class="form-group">
+                <label for="password_hash">Senha:</label>
+                <span id="toggle-password" class="eye-icon">
+                    <i id="togglePassword" class="fas fa-eye"></i>
+                </span>
+                <input type="password" id="password_hash" name="password_hash" placeholder="Digite sua senha" required>
+            </div>
+            <div class="form-group">
+                <label for="mqtt_broker">Broker <span class="mqtt">MQTT:</span></label>
+                <input type="text" id="mqtt_broker" name="mqtt_broker" placeholder="URL do Broker" required>
+            </div>
+            <div class="form-group">
+                <label for="mqtt_username">Usuário <span class="mqtt">MQTT:</span></label>
+                <input type="text" id="mqtt_username" name="mqtt_username" placeholder="Usuário MQTT" required>
+            </div>
+            <div class="form-group">
+                <label for="mqtt_password">Senha <span class="mqtt">MQTT:</span></label>
+                <span id="toggle-password1" class="eye-icon">
+                    <i id="togglePassword1" class="fas fa-eye"></i>
+                </span>
+                <input type="password" id="mqtt_password" name="mqtt_password" placeholder="Senha MQTT" required>
+            </div>
+            <div class="form-group">
+                <label for="mqtt_port">Porta <span class="mqtt">SSL:</span></label>
+                <input type="number" id="port" name="mqtt_port" placeholder="Porta SSL" required>
+            </div>
+            <button type="submit" class="form-button">Cadastrar</button>
+            <div id="spinner-container" style="display: none; justify-content: center; align-items: center;">
+                <div class="spinner" style="border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid #fff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+            </div>
+        </form>
+        <div class="form-footer">
+            Voltar para o <a href="/login">login</a>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        Powered by <span>Arley™</span>
+    </footer>
+
+    <script>
+        // Carregar o estado do modo escuro ao iniciar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            const themeSwitch = document.getElementById('theme-switch');
+            if (themeSwitch) {
+                themeSwitch.checked = isDarkMode; // Atualizar o toggle com o estado atual
+            }
+        });
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+        const form = document.querySelector("#register-form");
+        const spinnerContainer = document.querySelector("#spinner-container");
+        const submitButton = document.querySelector(".form-button");
+
+        form.addEventListener("submit", function (e) {
+            spinnerContainer.style.display = "flex"; // Mostrar spinner
+            submitButton.disabled = true; // Desativar botão
+        });
+
+        const togglePassword = document.querySelector("#togglePassword");
+        const password = document.querySelector("#password_hash");
+
+        togglePassword.addEventListener("click", function () {
+            const type = password.type === "password" ? "text" : "password";
+            password.type = type;
+
+            // Alterna o ícone
+            this.classList.toggle("fa-eye");
+            this.classList.toggle("fa-eye-slash");
+        });
+
+        const togglePassword1 = document.querySelector("#togglePassword1");
+        const password1 = document.querySelector("#mqtt_password");
+
+        togglePassword1.addEventListener("click", function () {
+            const type = password1.type === "password" ? "text" : "password";
+            password1.type = type;
+
+            // Alterna o ícone
+            this.classList.toggle("fa-eye");
+            this.classList.toggle("fa-eye-slash");
+        });
+
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(message => {
+                message.style.opacity = '0';
+                setTimeout(() => message.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

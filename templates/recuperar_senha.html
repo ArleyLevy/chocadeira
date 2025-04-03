@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/sJDXl0o.png">
+    <style>
+        /* Corpo da página */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+        }
+
+        /* Botão do menu */
+        .menu-button {
+            position: fixed;
+            top: 10px;
+            left: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #fff;
+            z-index: 1100;
+            transition: transform 0.3s, color 0.3s;
+        }
+
+        .menu-button:hover {
+            color: #ffd700;
+            transform: scale(1.2);
+        }
+
+        /* Cabeçalho */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 54px; /* Altura fixa */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: -5px 20px; /* Apenas laterais */
+            background: #333;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .botao{
+            margin-top: 50px;
+        }
+
+        .site-header .logo a img {
+            height: 40px;
+            margin-left: 60px;
+        }
+
+        .site-header .logo1 a {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 10px;
+            color: white;
+        }
+
+        /* Navegação */
+        .navigation ul {
+            display: flex;
+            gap: 10px;
+            margin-right: 10px;
+            z-index: 1000;
+        }
+
+        .navigation a {
+            color: white;
+            padding: 5px 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .navigation a:hover {
+            background-color: #ffd700;
+            color: #4e54c8;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .navigation ul {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 10px 20px;
+            }
+        }
+
+        @media (max-width : 403px){
+            .site-header .logo1 a {
+                display:none;
+            }
+        }
+
+
+        /* Barra lateral */
+        .sidebar {
+            position: fixed;
+            display: flex;
+            top: 0px;
+            left: -400px;
+            width: 300px;
+            height:100%;
+            background: #333;
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+            transition: left 0.4s ease;
+            overflow-y: auto;
+            z-index: 1000px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px; /* Reduz a largura da sidebar */
+            }
+        }
+
+        /* Para telas menores que 480px (celulares menores) */
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 150px; /* Reduz ainda mais a largura da sidebar */
+                padding: 10px; /* Ajusta o padding */
+            }
+        }
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background: #555;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .sidebar button:hover {
+            background: #ffd700;
+            color: #4e54c8;
+            transform: translateX(5px);
+        }
+
+        .form-container {
+            width: 70%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-container h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-size: 16px;
+            margin-left: 10px;
+
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-group input {
+            padding: 12px;
+            margin: 0px 0px 25px 12px;
+            width: 350px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 16px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .form-group1 {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: -10px;
+        }
+
+        .form-group1 label {
+            font-size: 16px;
+            margin-left: 5px;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-group1 input {
+            padding: 12px;
+            margin: 0px 0px 25px 0px;
+            width: 425px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 16px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-group1 input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+
+        .form-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            color: #fff;
+            background: #4CAF50;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .form-footer1 {
+            margin-top: 5px;
+            margin-bottom: -10px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .form-button:active {
+            background: #3e8e41;
+            transform: translateY(1px);
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
+
+        footer span {
+            font-weight: bold;
+            color: #ffd700;
+        }
+        .flash-container {
+            position: fixed;
+            top: 50px;
+            right: 20px;
+            z-index: 1100;
+        }
+
+        .flash-message {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: bold;
+            background: #4CAF50;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .flash-success {
+            background: #4CAF50 !important;
+        }
+
+        .flash-error {
+            background: #F44336 !important;
+        }
+        .flash-warning {
+            background: yellow !important;
+        }
+        body.dark-mode {
+            background: linear-gradient(135deg, #333, #555);
+            color: #f0f0f0;
+        }
+
+        body.dark-mode input {
+            background: #444;
+            color: #fff;
+        }
+
+        body.dark-mode .config-section {
+            background: rgba(50, 50, 50, 0.8);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+
+</head>
+<body>
+    <header class="site-header">
+        <div class="logo">
+            <a href="/login"><img src="https://i.imgur.com/c882vId.png" alt="Logo"></a>
+        </div>
+        <div class="logo1">
+            <a>Controle de LEDs</a>
+        </div>
+        <div class="navigation">
+            <ul>
+                <a button onclick="window.location.href='/login'">Login</a>
+            </ul>
+        </div>
+    </header>
+    <button class="menu-button" onclick="toggleMenu()">☰</button>
+    <div class="sidebar" id="sidebar">
+        <div class="botao">
+            <button onclick="window.location.href='/tutorial'">Guia para o ESP32</button> 
+            <button onclick="window.open('https://www.invertexto.com/broker', '_blank')">MQTT para Testes</button>
+        </div>
+    </div>
+    <div class="form-container">
+        <h1>Recuperação de senha</h1>
+        <div class="flash-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+        <div class="form-group">
+            <div id="conteudo">
+                <form onsubmit="event.preventDefault(); verificarEmail();">
+                    <label for="email">E-mail:</label>
+                    <input type="email" id="email" name="email" required>
+                    <button type="submit" class="form-button">Verificar E-mail</button>
+                </form>
+            </div>
+        </div>
+    
+        <!-- Adicionando a seção de verificação de código com o mesmo estilo -->
+        <div class="form-group" id="verificacao">
+            <!-- Esse conteúdo será injetado dinamicamente -->
+        </div>
+    </div>
+    
+    <footer class="footer">
+        Powered by <span>Arley™</span>
+    </footer>
+    <script>
+        // Carregar o estado do modo escuro ao iniciar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            const themeSwitch = document.getElementById('theme-switch');
+            if (themeSwitch) {
+                themeSwitch.checked = isDarkMode; // Atualizar o toggle com o estado atual
+            }
+        });
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+        // Função para verificar o e-mail
+        function verificarEmail() {
+            const email = document.getElementById('email').value;
+
+            if (!email) {
+                alert("Por favor, insira um e-mail!");
+                return;
+            }
+
+            // Fazendo a requisição para /procurar_email
+            fetch('/procurar_email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `email=${encodeURIComponent(email)}`,
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.encontrado) {
+                    // Atualiza o formulário para solicitar o código
+                    document.getElementById('conteudo').innerHTML = `
+                        <div class="form-group1">
+                            <label for="codigo">Código de Verificação:</label>
+                            <input type="text" id="codigo" name="codigo" required>
+                            <button onclick="verificarCodigo('${email}')" class="form-button">Verificar Código</button>
+                        </div>
+                    `;
+                    alert("Foi enviado um código de 6 dígitos para o seu e-mail!");
+                } else {
+                    alert(data.mensagem || "E-mail não encontrado!");
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao verificar o e-mail:', error);
+                alert("Erro ao verificar o e-mail. Tente novamente mais tarde.");
+            });
+        }
+
+        // Função para verificar o código
+        function verificarCodigo(email) {
+            const codigo = document.getElementById('codigo').value;
+
+            if (!codigo) {
+                alert("Por favor, insira o código!");
+                return;
+            }
+
+            // Fazendo a requisição para /validar_codigo
+            fetch('/validar_codigo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `email=${encodeURIComponent(email)}&codigo=${encodeURIComponent(codigo)}`,
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.validado) {
+                    alert(data.mensagem || "Código validado com sucesso!");
+                    // Redirecionar ou atualizar o conteúdo após validação, se necessário
+                    document.getElementById('conteudo').innerHTML = `
+                        <p>Código validado com sucesso! Verifique seu e-mail para mais instruções.</p>
+                    `;
+                } else {
+                    alert(data.mensagem || "Código inválido ou expirado!");
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao verificar o código:', error);
+                alert("Erro ao verificar o código. Tente novamente mais tarde.");
+            });
+        }
+    </script>
+</body>
+</html>
