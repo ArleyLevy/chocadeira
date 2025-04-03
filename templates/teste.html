@@ -55,10 +55,10 @@
             text-align: center;
         }
 
-        .logo1 a {
+        .site-header .logo1 a {
             font-size: 1.5rem;
             font-weight: bold;
-            margin-left: 200px;
+            margin-left: 100px;
             color: white;
         }
 
@@ -292,6 +292,18 @@
 
         select:focus {
             box-shadow: 0 0 6px #ffd700; /* Realçar com brilho ao focar */
+        }
+        @media (max-width : 403px){
+            .site-header .logo1 a {
+                margin-right: 10px;
+                display:center;
+            }
+        }
+                /* Responsividade */
+        @media (max-width: 768px) {
+            .navigation ul {
+                display: none;
+            }
         }
 
     </style>
