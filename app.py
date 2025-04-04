@@ -47,6 +47,7 @@ login_manager.login_view = 'login'
 led_states = {}
 pin_states = {}
 user_temperatures = {} 
+user_tempmaxmin = {}
 
 # Classe para representar o usuário
 class User(UserMixin):
@@ -413,11 +414,14 @@ def dashboard():
     app.config['PORT'] = current_user.mqtt_port
     app.config['USER'] = current_user.mqtt_user
     app.config['PASSWORD'] = current_user.mqtt_password
+
+    print(user_tempmaxmin.get(current_user.id, {}))
     
     return render_template(
         'dashboard.html',
         broker1=current_user.broker,
         user_id=current_user.id,
+        user_temps=user_tempmaxmin.get(current_user.id, {})
     )
     
 @app.route('/pin_update', methods=['POST'])
@@ -564,6 +568,19 @@ def set_temperature():
             client.publish(topic_min, str(temp_min))
             print(f"Publicado no tópico {topic_max}: {temp_max}")
             print(f"Publicado no tópico {topic_min}: {temp_min}")
+            user_tempmaxmin[current_user.id] = {"tempmax": temp_max, "tempmin": temp_min}
+            if (
+                isinstance(user_tempmaxmin[current_user.id].get("tempmax"), (int, float)) and
+                isinstance(user_tempmaxmin[current_user.id].get("tempmin"), (int, float)) and
+                user_tempmaxmin[current_user.id]["tempmax"] > 0 and 
+                user_tempmaxmin[current_user.id]["tempmin"] > 0
+            ):
+                print(user_tempmaxmin[current_user.id])
+
+            return jsonify({
+                "success": True,
+                "message": "Temperaturas atualizadas com sucesso!"
+            }), 200
         else:
             print(f"Erro: Cliente MQTT não conectado para o usuário {current_user.id}.")
             return jsonify({"error": "Cliente MQTT não conectado."}), 500
