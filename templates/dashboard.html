@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controle de LEDs</title>
     <link rel="icon" type="image/png" href="https://i.imgur.com/sJDXl0o.png">
+    <link href="https://fonts.cdnfonts.com/css/digital-7" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -318,6 +319,20 @@
             color: #fff;
             transition: transform 0.3s ease-in-out;
         }
+        .emoji {
+            margin-right: 5px;
+         }
+         .digital-display {
+            font-family: 'Digital-7', monospace;
+            font-size: 40px;
+            color: red;
+            background-color: black;
+            padding: 5px 20px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 0 15px rgb(49, 48, 48);
+            letter-spacing: 5px;
+        }
 
     </style>
 </head>
@@ -370,11 +385,15 @@
                     <button class='led-button' onclick="toggleLED(4)">SLOT 4</button>
                 </div>
             </div>
-            <h2>Temperatura Atual:</h2>
+            <h2><span class="emoji">🌡️</span>Temperatura Atual:</h2>
             <div class="temperature-container">
-                <span id="temperature">Carregando...</span>
+                <div class="digital-display" id="temperature">Carregando...</div>
+                <div id="temperature-status" style="margin-top: 5px; font-weight: bold;"></div>
+                <!-- Elementos invisíveis só para carregar os valores no JS -->
+                <div id="tempmin" data-tempmin="{{ user_temps.tempmin | default('NaN') }}" style="display: none;"></div>
+                <div id="tempmax" data-tempmax="{{ user_temps.tempmax | default('NaN') }}" style="display: none;"></div>
             </div>
-            <h2>Configurar Temperatura</h2>
+            <h2><span class="emoji">⚙️</span>Temperatura</h2>
             <div class="input-group">
                 <label>Temperatura Máxima:</label>
                 <label>A temperatura máx atual é: {{ user_temps.tempmax | default("Não definido") }}°C</label>
@@ -429,26 +448,62 @@
         const tempValue = document.getElementById("temperature");
 
         function fetchTemperature() {
+            const tempValue = document.getElementById("temperature");
+            const statusElement = document.getElementById("temperature-status");
+            const minTempElement = document.getElementById("tempmin");
+            const maxTempElement = document.getElementById("tempmax");
+
             fetch('/temperature')
                 .then(response => response.json())
                 .then(data => {
                     if (data.temperature !== undefined) {
-                        // Extrai apenas números da string para evitar erro de conversão
-                        const tempNumber = parseFloat(data.temperature.toString().replace(/[^\d.]/g, ''));
+                        const tempNumber = parseFloat(data.temperature.toString().replace(",", ".").replace(/[^\d.-]/g, ''));
                         if (!isNaN(tempNumber)) {
                             tempValue.innerText = tempNumber.toFixed(2) + "°C";
+
+                            const tempMin = parseFloat(minTempElement.dataset.tempmin);
+                            const tempMax = parseFloat(maxTempElement.dataset.tempmax);
+
+                            if (!isNaN(tempMin) && !isNaN(tempMax)) {
+                                if (tempNumber > tempMax) {
+                                    tempValue.style.color = "red";
+                                    statusElement.innerText = "Resfriando...";
+                                    statusElement.style.color = "red";
+                                } else if (tempNumber < tempMin) {
+                                    tempValue.style.color = "blue";
+                                    statusElement.innerText = "Esquentando...";
+                                    statusElement.style.color = "blue";
+                                } else if (tempNumber === tempMax || tempNumber === tempMin) {
+                                    tempValue.style.color = "yellow";
+                                    statusElement.innerText = "Estável no limite";
+                                    statusElement.style.color = "yellow";
+                                } else {
+                                    tempValue.style.color = "green";
+                                    statusElement.innerText = "Temperatura normal";
+                                    statusElement.style.color = "green";
+                                }
+                            } else {
+                                tempValue.style.color = "white";
+                                statusElement.innerText = "Esperando config...";
+                                statusElement.style.color = "white";
+                            }
                         } else {
                             tempValue.innerText = "Erro na leitura";
+                            statusElement.innerText = "";
+                            tempValue.style.color = "white";
                         }
                     }
                 })
                 .catch(error => {
                     console.error("Erro ao obter temperatura:", error);
                     tempValue.innerText = "Nenhuma";
+                    tempValue.style.color = "white";
+                    statusElement.innerText = "";
                 });
         }
 
-        setInterval(fetchTemperature, 5000); // Atualiza a cada 5 segundos
+
+        setInterval(fetchTemperature, 1000); // Atualiza a cada 5 segundos
         fetchTemperature();
     });
         function enviarETemperatura() {

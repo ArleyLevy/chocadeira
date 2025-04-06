@@ -114,10 +114,6 @@ app.register_blueprint(config_dashboard )
 def tutorial():
     return render_template('tutorial.html')
 
-@app.route('/<pagina>')
-def erro404(pagina):
-    return render_template('erro404.html', pagina=pagina)
-
 # Página inicial (redireciona para login ou dashboard)
 @app.route('/')
 def index():
@@ -407,6 +403,9 @@ def register():
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+    
     print(f"Broker: {current_user.broker}, ID: {current_user.id}")  # Aqui o current_user já está configurado
     app.config['BROKER'] = current_user.broker
     app.config['USER_ID'] = current_user.id
@@ -607,6 +606,16 @@ def logout():
 
     logout_user()
     return redirect(url_for('login'))
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('erro404.html'), 404
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    flash("Você precisa estar logado para acessar esta página.", "warning")
+    return redirect(url_for('login'))
+
 
 # Configuração do MQTT com TLS e sem validação de certificado
 mqtt_client = mqtt.Client()
