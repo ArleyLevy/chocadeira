@@ -1,0 +1,27 @@
+-- Criação do banco de dados (se ainda não existir)
+CREATE DATABASE IF NOT EXISTS sql10752888 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Seleciona o banco para uso
+USE sql10752888;
+
+-- Criação da tabela de usuários
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(150) NOT NULL UNIQUE,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    mqtt_broker VARCHAR(255) NOT NULL,
+    mqtt_port INT NOT NULL,
+    mqtt_username VARCHAR(255) NOT NULL,
+    mqtt_password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Criação da tabela de temperaturas configuradas
+CREATE TABLE temperaturas (
+    user_id INT PRIMARY KEY,
+    temp_max FLOAT NOT NULL,
+    temp_min FLOAT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

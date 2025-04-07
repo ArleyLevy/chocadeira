@@ -14,6 +14,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from config import config_dashboard
 from mysql import mysql
 from datetime import timedelta
+from flask import g
 
 app = Flask(__name__)
 
@@ -415,12 +416,23 @@ def dashboard():
     app.config['PASSWORD'] = current_user.mqtt_password
 
     print(user_tempmaxmin.get(current_user.id, {}))
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT temp_max, temp_min FROM temperaturas WHERE user_id = %s", (current_user.id,))
+    row = cursor.fetchone()
+    cursor.close()
+
+    if row:
+        temp_max, temp_min = row
+    else:
+        temp_max = temp_min = "Sem dados"
+
     
     return render_template(
         'dashboard.html',
         broker1=current_user.broker,
         user_id=current_user.id,
-        user_temps=user_tempmaxmin.get(current_user.id, {})
+        user_temps={"tempmax": temp_max, "tempmin": temp_min}
     )
     
 @app.route('/pin_update', methods=['POST'])
@@ -548,43 +560,53 @@ def set_temperature():
         data = request.get_json()
         if not data:
             return jsonify({"error": "Payload inválido."}), 400
+        
+        if "temp_max" not in data or "temp_min" not in data:
+            return jsonify({"error": "Campos 'temp_max' e 'temp_min' são obrigatórios."}), 400
 
         user_id = data.get('user_id')
         if int(user_id) != current_user.id:
             return jsonify({"error": "Ação não autorizada."}), 403
 
-        temp_max = float(data.get("temp_max", 0))
-        temp_min = float(data.get("temp_min", 0))
+        temp_max = float(data["temp_max"])
+        temp_min = float(data["temp_min"])
 
-        # Define os tópicos MQTT específicos do usuário
         topic_max = f"home/{current_user.id}/esp32/configtemp/tempmax"
         topic_min = f"home/{current_user.id}/esp32/configtemp/tempmin"
 
         client = mqtt_clients.get(current_user.id)
-
-        if client.is_connected():
+        if client and client.is_connected():
             client.publish(topic_max, str(temp_max))
             client.publish(topic_min, str(temp_min))
             print(f"Publicado no tópico {topic_max}: {temp_max}")
             print(f"Publicado no tópico {topic_min}: {temp_min}")
+
             user_tempmaxmin[current_user.id] = {"tempmax": temp_max, "tempmin": temp_min}
             if (
-                isinstance(user_tempmaxmin[current_user.id].get("tempmax"), (int, float)) and
-                isinstance(user_tempmaxmin[current_user.id].get("tempmin"), (int, float)) and
-                user_tempmaxmin[current_user.id]["tempmax"] > 0 and 
-                user_tempmaxmin[current_user.id]["tempmin"] > 0
+                isinstance(temp_max, (int, float)) and
+                isinstance(temp_min, (int, float)) and
+                temp_max > 0 and temp_min > 0
             ):
                 print(user_tempmaxmin[current_user.id])
+            
+            cursor = mysql.connection.cursor()
+            cursor.execute("""
+                INSERT INTO temperaturas (user_id, temp_max, temp_min)
+                VALUES (%s, %s, %s)
+                ON DUPLICATE KEY UPDATE temp_max = VALUES(temp_max), temp_min = VALUES(temp_min)
+            """, (current_user.id, temp_max, temp_min))
+            mysql.connection.commit()
+            cursor.close()
 
             return jsonify({
                 "success": True,
                 "message": "Temperaturas atualizadas com sucesso!"
             }), 200
-        else:
-            print(f"Erro: Cliente MQTT não conectado para o usuário {current_user.id}.")
-            return jsonify({"error": "Cliente MQTT não conectado."}), 500
 
-        return jsonify({"message": "Temperaturas enviadas com sucesso!", "temp_max": temp_max, "temp_min": temp_min}), 200
+        else:
+            print(f"[ERRO] Cliente MQTT não disponível ou desconectado para o usuário {current_user.id}.")
+            return jsonify({"error": "Cliente MQTT não disponível ou desconectado."}), 500
+
     except ValueError:
         return jsonify({"error": "Valor inválido para temperatura!"}), 400
     except Exception as e:
@@ -616,24 +638,60 @@ def unauthorized():
     flash("Você precisa estar logado para acessar esta página.", "warning")
     return redirect(url_for('login'))
 
+@app.before_request
+def ensure_mqtt_client():
+    if current_user.is_authenticated:
+        user_id = current_user.id
+
+        # Já existe um cliente conectado? Se sim, nada a fazer
+        if user_id in mqtt_clients and mqtt_clients[user_id].is_connected():
+            return
+
+        try:
+            # Busca credenciais do usuário logado
+            cur = mysql.connection.cursor()
+            cur.execute("""
+                SELECT mqtt_broker, mqtt_port, mqtt_username, mqtt_password
+                FROM users WHERE id = %s
+            """, (user_id,))
+            result = cur.fetchone()
+            cur.close()
+
+            if result:
+                broker, port, username, password = result
+                print(f"🔄 Criando cliente MQTT on-demand para o usuário {user_id}")
+                create_new_client(user_id, broker, port, username, password)
+            else:
+                print(f"[ERRO] Usuário {user_id} logado mas não encontrado no banco.")
+        except Exception as e:
+            print(f"[ERRO] Falha ao criar cliente MQTT em before_request: {e}")
+
 
 # Configuração do MQTT com TLS e sem validação de certificado
-mqtt_client = mqtt.Client()
+mqtt_client = mqtt.Client
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("✅ Conectado ao broker MQTT!")
-        
-        # Inscrever-se em todos os tópicos necessários
-        client.subscribe("home/+/esp32/temperature")
-        client.subscribe("home/+/esp32/status")  
-        
-        # Adicionar callback para mensagens de temperatura
-        client.message_callback_add("home/+/esp32/temperature", on_message_temperature)
 
-        print("📡 Inscrito nos tópicos MQTT!")
+        user_id = userdata.get("user_id")  # <- Correto aqui!
+        if user_id is None:
+            print("❌ user_id não fornecido no userdata.")
+            return
+
+        # Inscrever-se nos tópicos específicos do usuário
+        client.subscribe(f"home/{user_id}/esp32/temperature")
+        client.subscribe(f"home/{user_id}/esp32/status")
+        client.subscribe(f"home/{user_id}/esp32/request_temp")
+
+        # Adicionar callbacks individuais (tópicos exatos)
+        client.message_callback_add(f"home/{user_id}/esp32/temperature", on_message_temperature)
+        client.message_callback_add(f"home/{user_id}/esp32/request_temp", on_message_request_temp)
+
+        print(f"📡 Inscrito nos tópicos MQTT do usuário {user_id}!")
     else:
         print(f"❌ Falha ao conectar ao broker MQTT. Código de erro: {rc}")
+
 
     
 def on_disconnect(client, userdata, rc):
@@ -706,6 +764,39 @@ def on_message_temperature(client, userdata, msg):
     except Exception as e:
         print(f"❌ Erro inesperado ao processar temperatura MQTT: {e}")
 
+def on_message_request_temp(client, userdata, msg):
+    try:
+        topic = msg.topic
+        payload = msg.payload.decode()
+        print(f"Payload recebido: {payload}")
+        user_id = topic.split('/')[1]
+
+        print(f"🟠 ESP32 do usuário {user_id} solicitou temperaturas ao reiniciar.")
+
+        # AQUI é necessário o contexto da aplicação Flask
+        with app.app_context():
+            cursor = mysql.connection.cursor()
+            cursor.execute("SELECT temp_max, temp_min FROM temperaturas WHERE user_id = %s", (user_id,))
+            result = cursor.fetchone()
+            cursor.close()
+
+        if result:
+            temp_max, temp_min = result
+            topic_max = f"home/{user_id}/esp32/configtemp/tempmax"
+            topic_min = f"home/{user_id}/esp32/configtemp/tempmin"
+            
+            mqtt_client = mqtt_clients.get(int(user_id))
+            if mqtt_client and mqtt_client.is_connected():
+                mqtt_client.publish(topic_max, str(temp_max))
+                mqtt_client.publish(topic_min, str(temp_min))
+                print(f"✅ Enviadas temp_max={temp_max} e temp_min={temp_min} para o ESP32 do usuário {user_id}")
+            else:
+                print(f"❌ Cliente MQTT não conectado para o usuário {user_id}")
+        else:
+            print(f"⚠️ Nenhuma temperatura salva para o usuário {user_id}.")
+
+    except Exception as e:
+        print(f"Erro ao processar solicitação de temperatura: {e}")
 
 # Inscrevendo-se no tópico MQTT ao iniciar o Flask
 def subscribe_to_temperature(client, user_id):
@@ -736,7 +827,7 @@ def create_new_client(user_id, broker, port, username, password):
         print(f"Cliente MQTT já existe para o usuário {user_id}.")
         return mqtt_clients[user_id]
 
-    client = mqtt.Client(client_id=str(user_id))
+    client = mqtt.Client(client_id=str(user_id), userdata={"user_id": user_id})
     client.username_pw_set(username, password)
     client.tls_set()
     client.tls_insecure_set(True)
