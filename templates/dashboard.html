@@ -153,7 +153,8 @@
         }
 
         .content {
-            margin-top: 115px;
+            margin-top: 70px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -192,15 +193,17 @@
         }
         .temperature-container {
             display: inline-block;
-            padding: 10px 20px; /* Aumentei o padding para um tamanho maior */
-            background: rgba(255, 255, 255, 0.3); /* Deixei um pouco mais visível */
-            border-radius: 12px; /* Bordas mais arredondadas */
-            font-size: 24px; /* Aumentei o tamanho da fonte */
+            width: 250px; /* ou 200px, ou o tamanho que quiser */
+            padding: 10px 0px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            font-size: 24px;
             font-weight: bold;
             color: #fff;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* Um pouco mais de sombra */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
             margin-bottom: 10px;
         }
+
 
         .circle {
             width: 80px;
@@ -333,7 +336,24 @@
             box-shadow: 0 0 15px rgb(49, 48, 48);
             letter-spacing: 5px;
         }
+        .esp-status-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 30px;
+        }
+        .esp-icon {
+            width: 60px;
+            height: auto;
+        }
 
+        .status-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: gray;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 <body>
@@ -389,6 +409,12 @@
             <div class="temperature-container">
                 <div class="digital-display" id="temperature">Carregando...</div>
                 <div id="temperature-status" style="margin-top: 5px; font-weight: bold;"></div>
+
+                <div id="esp-status" class="esp-status-container">
+                    <img src="https://camo.githubusercontent.com/f137356d574a779342fe335937f7d6d0cb1766f0a18e3e34eddeba6b6bfe356e/68747470733a2f2f7062732e7477696d672e636f6d2f70726f66696c655f696d616765732f3836333531303430333132303232323230382f726a564f695465332e6a7067" alt="ESP32" class="esp-icon"> 
+                    <span class="status-dot" id="esp-dot"></span>
+                </div>
+
                 <!-- Elementos invisíveis só para carregar os valores no JS -->
                 <div id="tempmin" data-tempmin="{{ user_temps.tempmin | default('NaN') }}" style="display: none;"></div>
                 <div id="tempmax" data-tempmax="{{ user_temps.tempmax | default('NaN') }}" style="display: none;"></div>
@@ -421,7 +447,10 @@
             if (themeSwitch) {
                 themeSwitch.checked = isDarkMode; // Atualizar o toggle com o estado atual
             }
+            checkEspStatus(); // Executa a primeira vez
+            setInterval(checkEspStatus, 5000); // Atualiza a cada 5 segundos
         });
+
         // Oculta mensagens de flash automaticamente
         setTimeout(() => {
             const flashMessages = document.querySelectorAll('.flash-message');
@@ -488,7 +517,7 @@
                                 statusElement.style.color = "white";
                             }
                         } else {
-                            tempValue.innerText = "Erro na leitura";
+                            tempValue.innerText = "ESP32 desligado";
                             statusElement.innerText = "";
                             tempValue.style.color = "white";
                         }
@@ -548,6 +577,38 @@
                 }
             })
             .catch(error => console.error("Erro:", error));
+        }
+        function checkEspStatus() {
+            fetch('/esp_status')
+                .then(response => response.json())
+                .then(data => {
+                    console.log("ESP32 status recebido:", data); // Para depuração no console
+
+                    const dot = document.getElementById('esp-dot');
+                    if (!dot) {
+                        console.warn("Elemento #esp-dot não encontrado no DOM.");
+                        return;
+                    }
+
+                    if (data.status === 'online') {
+                        dot.style.backgroundColor ='#00FF00';
+                        dot.title = "ESP32 Online";
+                    } else if (data.status === 'offline') {
+                        dot.style.backgroundColor = 'red';
+                        dot.title = "ESP32 Offline";
+                    } else {
+                        dot.style.backgroundColor = 'gray';
+                        dot.title = "Status desconhecido";
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro ao verificar status do ESP32:", error);
+                    const dot = document.getElementById('esp-dot');
+                    if (dot) {
+                        dot.style.backgroundColor = 'gray';
+                        dot.title = "Erro ao obter status";
+                    }
+                });
         }
 
 

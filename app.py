@@ -15,6 +15,7 @@ from config import config_dashboard
 from mysql import mysql
 from datetime import timedelta
 from flask import g
+import uuid
 
 app = Flask(__name__)
 
@@ -49,6 +50,8 @@ led_states = {}
 pin_states = {}
 user_temperatures = {} 
 user_tempmaxmin = {}
+esp_status = {}  # user_id -> timestamp da última temperatura
+
 
 # Classe para representar o usuário
 class User(UserMixin):
@@ -612,6 +615,20 @@ def set_temperature():
     except Exception as e:
         print(f"Erro no /set_temperature: {e}")
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/esp_status')
+@login_required
+def esp_connection_status():
+    user_id = str(current_user.id)
+    last_seen = esp_status.get(user_id)
+
+    if last_seen is None:
+        return jsonify({"status": "offline"})  # Nunca recebeu
+    elif time.time() - last_seen > 3:
+        return jsonify({"status": "offline"})  # Passaram mais de 10 segundos
+    else:
+        return jsonify({"status": "online"})
+
 
 # Desconecta o usuário
 @app.route('/logout')
@@ -757,6 +774,8 @@ def on_message_temperature(client, userdata, msg):
         user_id = str(topic.split('/')[1])  # Garantindo que user_id seja string
 
         user_temperatures[user_id] = temperature
+        esp_status[user_id] = time.time()  # <-- Marca o horário da última temperatura recebida
+
         print(f"✅ Temperatura salva para usuário {user_id}: {temperature}°C")
 
     except ValueError:
@@ -826,8 +845,10 @@ def create_new_client(user_id, broker, port, username, password):
     if user_id in mqtt_clients:
         print(f"Cliente MQTT já existe para o usuário {user_id}.")
         return mqtt_clients[user_id]
+    
 
-    client = mqtt.Client(client_id=str(user_id), userdata={"user_id": user_id})
+    client_id = f"{user_id}-{uuid.uuid4()}"  # <- Aqui está a mudança!
+    client = mqtt.Client(client_id=client_id, userdata={"user_id": user_id})
     client.username_pw_set(username, password)
     client.tls_set()
     client.tls_insecure_set(True)
@@ -837,7 +858,7 @@ def create_new_client(user_id, broker, port, username, password):
     client.on_disconnect = on_disconnect
 
     try:
-        client.connect(broker, int(port))
+        client.connect(broker, int(port),  keepalive=60)
         client.loop_start()
         mqtt_clients[user_id] = client
         print(f"Cliente MQTT criado e conectado para o usuário {user_id}.")
